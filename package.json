@@ -1,0 +1,32 @@
+{
+  "name": "smart-brain-api",
+  "version": "1.0.0",
+  "description": "API Service for Smart Brain user features.",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MarkelCA/smart-brain-api.git"
+  },
+  "keywords": [
+    "mongo",
+    "express",
+    "rest",
+    "api"
+  ],
+  "author": "Markel Cuesta",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MarkelCA/smart-brain-api/issues"
+  },
+  "homepage": "https://github.com/MarkelCA/smart-brain-api#readme",
+  "dependencies": {
+    "body-parser": "^1.19.1",
+    "express": "^4.17.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}
