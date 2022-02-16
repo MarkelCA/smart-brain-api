@@ -1,6 +1,7 @@
 const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
+const cors = require('cors')
 
 // Bcrypt config
 const bcrypt = require('bcrypt');
@@ -9,8 +10,11 @@ const saltRounds = 10;
 const myPlaintextPassword = 's0/\/\P4$$w0rD';
 const someOtherPlaintextPassword = 'not_bacon';
 
-// Routes
+// Middleware
 app.use(bodyParser.json())
+app.use(cors())
+
+// Routes
 const database = {
     users : [
         {
@@ -79,12 +83,15 @@ app.post('/signin', (req, res) => {
 
     const user = database.users.find(user => user.email == sendedEmail)
      
-    bcrypt.hash(sendedPassword, saltRounds).then( hash => { 
-        bcrypt.compare(user.password, hash, (err,result) => {
-            console.log(sendedPassword, hash, result)
-            res.json(result)
+    if(user)
+        bcrypt.hash(sendedPassword, saltRounds).then( hash => { 
+            bcrypt.compare(user.password, hash, (err,result) => {
+                console.log(sendedPassword, hash, result)
+                res.json(result)
+            })
         })
-    })
+    else
+        res.json(false)
      
 
 
