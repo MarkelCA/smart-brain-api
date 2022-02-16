@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/MarkelCA/smart-brain-api#readme",
   "dependencies": {
+    "bcrypt": "^5.0.1",
     "body-parser": "^1.19.1",
     "express": "^4.17.2"
   },

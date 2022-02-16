@@ -2,6 +2,14 @@ const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
 
+// Bcrypt config
+const bcrypt = require('bcrypt');
+
+const saltRounds = 10;
+const myPlaintextPassword = 's0/\/\P4$$w0rD';
+const someOtherPlaintextPassword = 'not_bacon';
+
+// Routes
 app.use(bodyParser.json())
 const database = {
     users : [
@@ -25,6 +33,13 @@ const database = {
     ]
 }
 
+app.get('/profile/:id', (req, res) => {
+    const { id } = req.params
+    const user = database.users.filter(user => user.id == id)[0]
+    res.json(user ?? "nothing")
+
+})
+
 app.get('/', (req, res) => {
     res.json(database.users)
 })
@@ -44,11 +59,35 @@ app.post('/register', (req, res) => {
     
 })
 
+app.put('/image', (req, res) => {
+    const { id } = req.body
+    const user = database.users.filter(user => user.id == id)[0]
+    if(user) {
+        user.entries++
+        res.json(user.entries)
+    }
+    else 
+        res.json('user not found')
+
+
+})
+
 app.post('/signin', (req, res) => {
-    const { email, password } = database.users[0]
+    //const { email, password } = database.users[0]
     const { email: sendedEmail, password : sendedPassword} = req.body
-    let msg = (email == sendedEmail && password == sendedPassword) ? "success" : "failed" 
-    res.json(msg)
+    //let msg = (email == sendedEmail && password == sendedPassword) ? "success" : "failed" 
+
+    const user = database.users.find(user => user.email == sendedEmail)
+     
+    bcrypt.hash(sendedPassword, saltRounds).then( hash => { 
+        bcrypt.compare(user.password, hash, (err,result) => {
+            console.log(sendedPassword, hash, result)
+            res.json(result)
+        })
+    })
+     
+
+
 
 })
 
