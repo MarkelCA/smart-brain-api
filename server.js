@@ -21,7 +21,7 @@ const database = {
             id       : 123,
             email    : "john@email.com",
             name     : 'John',
-            password : 'cookies',
+            password : '$2b$10$8wX8Kjg2TdTVlTYODCG9Ou6uxQsI2sO6ZRakqKwMwR/DgIpwVVvC6',
             entries  : 0,
             joined   : new Date()
         },
@@ -48,18 +48,20 @@ app.get('/', (req, res) => {
     res.json(database.users)
 })
 
-app.post('/register', (req, res) => {
+app.post('/register', async (req, res) => {
     const { email, password, name} = req.body
+
+    const hash = await bcrypt.hash(password, saltRounds)
+
     database.users.push({
             id       : 125,
             name     : name,
             email    : email,
-            password : password,
-            entries  : 3,
+            password : hash,
+            entries  : 0,
             joined   : new Date()
         })
     res.json('created new user')
-    console.log(database.users)
     
 })
 
@@ -77,24 +79,18 @@ app.put('/image', (req, res) => {
 })
 
 app.post('/signin', (req, res) => {
-    //const { email, password } = database.users[0]
     const { email: sendedEmail, password : sendedPassword} = req.body
-    //let msg = (email == sendedEmail && password == sendedPassword) ? "success" : "failed" 
-
     const user = database.users.find(user => user.email == sendedEmail)
-     
-    if(user)
-        bcrypt.hash(sendedPassword, saltRounds).then( hash => { 
-            bcrypt.compare(user.password, hash, (err,result) => {
-                console.log(sendedPassword, hash, result)
-                res.json(result)
-            })
-        })
-    else
+
+    if(!user) {
         res.json(false)
-     
+        return
+    }
 
-
+    bcrypt.compare(sendedPassword, user.password, (err,result) => {
+        const ret = result ? user : false
+        res.json(ret)
+    })
 
 })
 
