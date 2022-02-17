@@ -68,13 +68,13 @@ app.post('/register', async (req, res) => {
 app.put('/image', (req, res) => {
     const { id } = req.body
     const user = database.users.filter(user => user.id == id)[0]
+    console.log('image')
     if(user) {
         user.entries++
-        res.json(user.entries)
+        res.json(user)
     }
     else 
-        res.json('user not found')
-
+        res.json(null)
 
 })
 
