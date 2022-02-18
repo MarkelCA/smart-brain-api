@@ -51,6 +51,8 @@ app.get('/', (req, res) => {
 app.post('/register', async (req, res) => {
     const { email, password, name} = req.body
 
+    console.log(password)
+
     const hash = await bcrypt.hash(password, saltRounds)
 
     database.users.push({
@@ -68,8 +70,9 @@ app.post('/register', async (req, res) => {
 app.put('/image', (req, res) => {
     const { id } = req.body
     const user = database.users.filter(user => user.id == id)[0]
-    console.log('image')
+    console.log(user)
     if(user) {
+        console.log(user)
         user.entries++
         res.json(user)
     }
@@ -81,13 +84,16 @@ app.put('/image', (req, res) => {
 app.post('/signin', (req, res) => {
     const { email: sendedEmail, password : sendedPassword} = req.body
     const user = database.users.find(user => user.email == sendedEmail)
-
+    console.log(sendedEmail, sendedPassword)
+    //console.log(database.users)
+    console.log(user)
     if(!user) {
         res.json(false)
         return
     }
 
     bcrypt.compare(sendedPassword, user.password, (err,result) => {
+        console.log(result)
         const ret = result ? user : false
         res.json(ret)
     })
