@@ -1,14 +1,59 @@
-const express = require('express')
+import express from 'express'
 const app = express()
-const bodyParser = require('body-parser')
-const cors = require('cors')
+import bodyParser from 'body-parser'
+import cors from 'cors'
 
 // Bcrypt config
-const bcrypt = require('bcrypt');
+import bcrypt from 'bcrypt'
 
 const saltRounds = 10;
 const myPlaintextPassword = 's0/\/\P4$$w0rD';
 const someOtherPlaintextPassword = 'not_bacon';
+
+/// MongoDB Connection
+import mongoose from 'mongoose';
+import dotenv from 'dotenv'
+import User from './schemas/User.js'
+//const User = require('./schemas/User') 
+dotenv.config()
+
+const { USER, PASSWORD, DB_NAME, DB_HOST } = process.env
+const url = `mongodb+srv://${USER}:${PASSWORD}@${DB_HOST}/${DB_NAME}?retryWrites=true&w=majority`
+
+mongoose.connect(url, {useNewUrlParser: true, useUnifiedTopology: true});
+
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+
+const printErrors = (err) => {
+    let strMessage = "Error:\n"
+
+    for(const errMessage in err.errors)
+        strMessage += " - " + err.errors[errMessage].message + "\n"
+    console.log(strMessage)
+}
+
+db.once('open', async function() {
+    console.log('connected to db')
+
+    const user = await User.find({ name : "Markel" }).exec()
+    const newuser = new User({
+            name : "Markel",
+            password : "1234",
+            email    : "markel4@gmail.com",
+            entries: 0
+        })
+
+    newuser.save((err, doc) => {
+        if(err)
+            printErrors(err)
+        else
+            console.log(doc)
+
+    })
+});
+// MongoDB connection end
+//
 
 // Middleware
 app.use(bodyParser.json())
@@ -88,7 +133,7 @@ app.post('/signin', (req, res) => {
     if(!user) 
         res.json(null)
     else
-        res.json(user.password)
+        res.json(user)
 })
 
 app.listen(3000, () => {
