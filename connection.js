@@ -37,3 +37,11 @@ export const insertUser = async(user) => {
 
 }
 
+export const updateUser = async(user, updateQuery) => {
+    await new Promise((resolve, reject) => {
+        const a =  User.updateOne(user, updateQuery )
+        resolve(a)
+    })
+    
+}
+

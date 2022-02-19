@@ -5,7 +5,7 @@ import cors from 'cors'
 
 // Bcrypt config
 import bcrypt from 'bcrypt'
-import { db, findUser, insertUser } from './connection.js'
+import { db, findUser, insertUser, updateUser } from './connection.js'
 
 const saltRounds = 10;
 const myPlaintextPassword = 's0/\/\P4$$w0rD';
@@ -48,14 +48,9 @@ app.post('/register', async (req, res) => {
 
 app.put('/image', async (req, res) => {
     const { email } = req.body
-    const user = await findUser({ email : email})
-        if(user) {
-        user.entries++
-        res.json(user)
-    }
-    else 
-        res.json(null)
-
+    await updateUser({ email : email}, {$inc: {'entries': 1}})
+    const user = await findUser({email : email})
+    res.json( user ? user : null )
 })
 
 app.post('/signin', async (req, res) => {
