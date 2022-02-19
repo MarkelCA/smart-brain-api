@@ -5,54 +5,25 @@ import cors from 'cors'
 
 // Bcrypt config
 import bcrypt from 'bcrypt'
+import { db, findUser, newUser } from './connection.js'
 
 const saltRounds = 10;
 const myPlaintextPassword = 's0/\/\P4$$w0rD';
 const someOtherPlaintextPassword = 'not_bacon';
 
-/// MongoDB Connection
-import mongoose from 'mongoose';
-import dotenv from 'dotenv'
-import User from './schemas/User.js'
-//const User = require('./schemas/User') 
-dotenv.config()
-
-const { USER, PASSWORD, DB_NAME, DB_HOST } = process.env
-const url = `mongodb+srv://${USER}:${PASSWORD}@${DB_HOST}/${DB_NAME}?retryWrites=true&w=majority`
-
-mongoose.connect(url, {useNewUrlParser: true, useUnifiedTopology: true});
-
-const db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-
-const printErrors = (err) => {
-    let strMessage = "Error:\n"
-
-    for(const errMessage in err.errors)
-        strMessage += " - " + err.errors[errMessage].message + "\n"
-    console.log(strMessage)
-}
-
 db.once('open', async function() {
-    console.log('connected to db')
-
-    const user = await User.find({ name : "Markel" }).exec()
-    const newuser = new User({
-            name : "Markel",
-            password : "1234",
-            email    : "markel4@gmail.com",
-            entries: 0
-        })
-
-    newuser.save((err, doc) => {
-        if(err)
-            printErrors(err)
-        else
-            console.log(doc)
-
-    })
+    console.log('Connected to database')
 });
-// MongoDB connection end
+
+//const user = await findUser({email : "markel@gmail.com"})
+(async() => {
+    const user = await newUser({name : "Bob", password : 1234, email : "iaionewMarkefjlj@jgmail.com"}).then((user) => {
+        console.log('hii')
+        console.log(user)
+    })
+
+})()
+
 //
 
 // Middleware
