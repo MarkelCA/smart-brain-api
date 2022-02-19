@@ -44,4 +44,11 @@ export const updateUser = async(user, updateQuery) => {
     })
     
 }
+export const getRank = async(userEntries) => {
+    const entries = await User.find({}, {entries:1}).sort({entries : -1})
+    const entryNumbers = []
+    for(const entry in entries)
+        entryNumbers.push(entries[entry].entries)
 
+    return entryNumbers.indexOf(parseInt(userEntries)) + 1
+}

@@ -5,7 +5,7 @@ import cors from 'cors'
 
 // Bcrypt config
 import bcrypt from 'bcrypt'
-import { db, findUser, insertUser, updateUser } from './connection.js'
+import { db, findUser, insertUser, updateUser, getRank } from './connection.js'
 
 const saltRounds = 10;
 const myPlaintextPassword = 's0/\/\P4$$w0rD';
@@ -53,13 +53,23 @@ app.put('/image', async (req, res) => {
     res.json( user ? user : null )
 })
 
+app.get('/getRank/:number' , async(req, res) => {
+    const { number } = req.params
+    const rank = await getRank(number)
+    res.json(rank > 0 ? rank : null)
+})
+
 app.post('/signin', async (req, res) => {
     const { email: sendedEmail, password : sendedPassword} = req.body
     const user = await findUser({email : sendedEmail})
     if(!user) 
         res.json(null)
-    else
+    else {
+        //const rank = await getRank(user.entries)
+        // We use spread operator to add the rank attribute to the rest of the Mongo Object
+        //const sendedUser = {rank : rank, ...user['_doc']}
         res.json(user)
+    }
 })
 
 app.listen(3000, () => {
