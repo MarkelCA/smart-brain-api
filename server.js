@@ -62,14 +62,7 @@ app.get('/getRank/:number' , async(req, res) => {
 app.post('/signin', async (req, res) => {
     const { email: sendedEmail, password : sendedPassword} = req.body
     const user = await findUser({email : sendedEmail})
-    if(!user) 
-        res.json(null)
-    else {
-        //const rank = await getRank(user.entries)
-        // We use spread operator to add the rank attribute to the rest of the Mongo Object
-        //const sendedUser = {rank : rank, ...user['_doc']}
-        res.json(user)
-    }
+    res.json ( user ? user : null)
 })
 
 app.listen(3000, () => {
