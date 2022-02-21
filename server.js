@@ -10,6 +10,7 @@ import { db, findUser, insertUser, updateUser, getRank } from './connection.js'
 const saltRounds = 10;
 const myPlaintextPassword = 's0/\/\P4$$w0rD';
 const someOtherPlaintextPassword = 'not_bacon';
+import sanitize from 'mongo-sanitize'
 
 db.once('open', async function() {
     console.log('Connected to database')
@@ -20,9 +21,13 @@ db.once('open', async function() {
 app.use(bodyParser.json())
 app.use(cors())
 
+const sanitizeAll = (obj) => {
+    return Object.keys(obj).map((x) => escape(obj[x]))
+}
 // Routes
 app.post('/register', async (req, res) => {
-    const { email, password, name} = req.body
+    const body = sanitizeAll(req.body)
+    const [ email, password, name ] = body
 
     const hash = await bcrypt.hash(password, saltRounds)
 
@@ -47,22 +52,31 @@ app.post('/register', async (req, res) => {
 })
 
 app.put('/image', async (req, res) => {
-    const { email } = req.body
+    const body = sanitizeAll(req.body)
+    const [ email ] = body
     await updateUser({ email : email}, {$inc: {'entries': 1}})
     const user = await findUser({email : email})
     res.json( user ? user : null )
 })
 
 app.get('/getRank/:number' , async(req, res) => {
-    const { number } = req.params
+    const params = sanitizeAll(req.params)
+    const [ number ] = params
     const rank = await getRank(number)
     res.json(rank > 0 ? rank : null)
 })
 
 app.post('/signin', async (req, res) => {
-    const { email: sendedEmail, password : sendedPassword} = req.body
-    const user = await findUser({email : sendedEmail})
-    res.json ( user ? user : null)
+    const body = sanitizeAll(req.body)
+    const [ email, password ] = body
+    const user = await findUser({email : email})
+    if(!user) {
+        res.json(null)
+        return
+    }
+    bcrypt.compare(password, user.password, function(err, result) {
+        res.json ( result ? user : null)
+    });
 })
 
 app.listen(3000, () => {
