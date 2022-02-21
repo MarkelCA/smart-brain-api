@@ -10,7 +10,6 @@ import { db, findUser, insertUser, updateUser, getRank } from './connection.js'
 const saltRounds = 10;
 const myPlaintextPassword = 's0/\/\P4$$w0rD';
 const someOtherPlaintextPassword = 'not_bacon';
-import sanitize from 'mongo-sanitize'
 
 db.once('open', async function() {
     console.log('Connected to database')
