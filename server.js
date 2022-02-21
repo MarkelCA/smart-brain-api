@@ -58,7 +58,6 @@ app.post('/register', async (req, res) => {
 app.put('/image', async (req, res) => {
     const body = sanitizeAll(req.body)
     const [ email, input ] = body
-    console.log(req.body)
     await updateUser({ email : email}, {$inc: {'entries': 1}})
 
     clarifaiApp.models
@@ -69,7 +68,6 @@ app.put('/image', async (req, res) => {
             res.json({regions, user :  user ? user : null })
         })
         .catch((e) => {
-            console.log(e)
             res.json(null)
         })
 
