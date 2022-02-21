@@ -3,6 +3,11 @@ const app = express()
 import bodyParser from 'body-parser'
 import cors from 'cors'
 
+import Clarifai from 'clarifai';
+
+const clarifaiApp = new Clarifai.App({
+    apiKey: "49a9260111a945d48126bac0a1d2cd3c",
+});
 // Bcrypt config
 import bcrypt from 'bcrypt'
 import { db, findUser, insertUser, updateUser, getRank } from './connection.js'
@@ -52,10 +57,22 @@ app.post('/register', async (req, res) => {
 
 app.put('/image', async (req, res) => {
     const body = sanitizeAll(req.body)
-    const [ email ] = body
+    const [ email, input ] = body
+    console.log(req.body)
     await updateUser({ email : email}, {$inc: {'entries': 1}})
-    const user = await findUser({email : email})
-    res.json( user ? user : null )
+
+    clarifaiApp.models
+      .predict(Clarifai.FACE_DETECT_MODEL, unescape(input))
+        .then(calculateRegions)
+        .then(async (regions) => {
+            const user = await findUser({email : email})
+            res.json({regions, user :  user ? user : null })
+        })
+        .catch((e) => {
+            console.log(e)
+            res.json(null)
+        })
+
 })
 
 app.get('/getRank/:number' , async(req, res) => {
@@ -77,6 +94,12 @@ app.post('/signin', async (req, res) => {
         res.json ( result ? user : null)
     });
 })
+
+
+const calculateRegions = ({outputs: out}) => {
+    const regions = out[0].data.regions
+    return regions
+}
 
 app.listen(3000, () => {
     console.log('App is running on port 3000')
